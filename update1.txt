@@ -1,0 +1,29 @@
+Names: Paris Floyd and Abhaya Shrestha
+Date: 10/27/2023
+Update 1
+
+This week, our team did the following work:
+1. We performed an investigation of the libraries that we should be utilizing in order to successfully detect the evil twin attack.
+The following imports will likely be useful:
+import subprocess
+import pyshark
+import os
+import sys
+
+We imagine that subprocess will be the most useful library as it provides very direct information about network connections and allows
+us to perform analysis on commands. However, it is OS-specific, which will be necessary to include in our specification of the project.
+We will likely stick with just Windows implementation. Both Abhaya and Paris did this.
+
+2. We performed some initial testing on the subprocess library. We ran some necessary commands that were able to print the current
+SSID and MAC address, as well as a lot of other identifying information which is obtained from the AP using the getmac command and the
+netsh wlan show interfaces
+command. We imagine that almost all of it will be valuable in the future. Paris wrote the code and Abhaya looked into more of the information on the libraries.
+
+3. We did a bit of research and brainstorming on the evil twin attack and what information we will have to collect in order to detect
+that the attack is happening. Abhaya and Paris worked on this.
+
+4. Abhaya provided more information/brainstorming on system programming that would be associated with our project.
+
+This progress lines up perfectly with the milestones in our proposal, as we imagined that the preliminary research of python libraries
+for the task as well as some initial testing of them would make for a very great start to the project. We anticipate that
+we will both get more work done next week as we are both a lot less busy then.
