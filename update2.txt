@@ -1,0 +1,16 @@
+Names: Paris Floyd and Abhaya Shrestha
+Date: 11/3/2023
+Update 2
+
+This week, our team did the following:
+
+1. Abhaya performed more research on strategies present in the literature to mitigate the evil twin attack.
+These include strategies from papers such as "Overview On Public Wi-Fi Security Threat Evil Twin Attack Detection"
+and "An Efficient Scheme to Detect Evil Twin Rogue Access Point Attack in 802.11 Wi-Fi Networks" and
+"Evil Twin Attack Detection using Discrete Event Systems in IEEE 802.11 Wi-Fi Networks." There are many more papers
+with more solutions, which we will detail in our final report, but we wanted to find a paper that would give us a
+solid idea of how Evil Twins can be detected and countered. Research was also done on what strategies attackers take to
+perform these attacks.
+
+2. We both met to discuss the research, and we ended up realizing that the solution that Paris was trying to implement,
+which used key network features such as the SSID, MAC Address,

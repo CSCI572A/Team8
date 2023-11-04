@@ -12,8 +12,8 @@ def get_ssid_windows():
     #print(result)
     for line in result:
         print(line)
-        if "SSID" in line:
-            return line.strip().split(":")[1].strip()
+        #if "SSID" in line:
+        #    return line.strip().split(":")[1].strip()
 
 import subprocess
 
