@@ -25,6 +25,40 @@ def get_mac_address_windows():
         # The MAC address is usually in the second line, but you can adjust the index if needed.
         return (lines[1].split()[0], lines[4].split()[0])
 
+#Inputs: r1, r2 - retry bit of first and second response
+# seq1, seq2: sequence number of first, second response
+#Returns: boolean - is an evil twin present (True) or absent (False)?
+def detect_evil_twin(r1, seq1, r2, seq2):
+    if r1==0:
+        #create database entry for the client
+        #store MAC address, r1, and AID1 in the DB
+    if deauth_received:
+        # delete DB entry for client
+        return False
+    elif r2 == 0:
+        return True
+    elif r2 == 1 and seq1 == seq2:
+        if seq1 == seq2:
+            return True
+        else:
+            return False
+    else:   # first response with R1 = 1
+        # create database entry for the client
+        # store MAC address, r1, and AID1 in the DB
+        if deauth_received:
+            # delete DB entry for client
+            return False
+        elif r2 ==0:
+            # store MAC address, r2, seq2 and AID2 in the DB
+            # Fetch seq1 value for client from DB
+            return True
+        elif r2 == 1:
+            return True
+        else:
+            return False
+
+
+
 
 ssid = get_ssid_windows()
 print("Current SSID:", ssid)

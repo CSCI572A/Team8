@@ -9,8 +9,35 @@ These include strategies from papers such as "Overview On Public Wi-Fi Security 
 and "An Efficient Scheme to Detect Evil Twin Rogue Access Point Attack in 802.11 Wi-Fi Networks" and
 "Evil Twin Attack Detection using Discrete Event Systems in IEEE 802.11 Wi-Fi Networks." There are many more papers
 with more solutions, which we will detail in our final report, but we wanted to find a paper that would give us a
-solid idea of how Evil Twins can be detected and countered. Research was also done on what strategies attackers take to
+solid idea of how Evil Twins can be detected and countered. These seem to be the most useful out of many different
+papers that Abhaya had to go through.
+Research was also done on what strategies attackers take to
 perform these attacks.
 
-2. We both met to discuss the research, and we ended up realizing that the solution that Paris was trying to implement,
-which used key network features such as the SSID, MAC Address,
+2. Paris performed initial tests on an evil twin attack, which included recording various statistics about the Wi-Fi
+connection of the computer and printing them to files. These statistics were recorded using the subprocess
+ library. The statistics for the evil AP are recorded in evilAPinfo.txt and the statistics for the trusted AP are
+ in goodAPinfo.txt. Paris found that the statistics provided by this output barely differ between the evil twin and the
+ trusted AP. We do not believe that the minor differences would be enough to reliably detect an evil twin attack.
+ As a result, we are forced to rethink our strategy.
+
+ 3. We developed our new strategy for detecting meaningful evidence of an evil twin attack. This is based off of the
+ research paper "An Efficient Scheme to Detect Evil Twin Rogue Access Point Attack in 802.11 Wi-Fi Networks."
+ It involves three steps:
+    1. Packet sniffing/collection
+    2. Packet filtering to look for deauthentication frames, association request and response frames, which are useful
+    in the algorithm for evil twin attack detection.
+    3. Whenever multiple response frames are sent in response to one association request, separate the cases
+    where this is suspicious (could be an evil twin) from the cases where this is benign (the AP failed to send
+    completely/accurately)
+    4. Detect whether an evil twin attack has occured or not
+We believe that we will have to go ahead with this method as it is more reliable (>=90% accuracy) than other methods
+and is possible for us to achieve in a reasonable time. However, it should also be noted that the packet sniffing
+may be hard to perform live on some systems (such as Paris' laptop) as a laptop likely needs to be in promiscuous
+mode in order to sense packets on the network, which not all of them are capable of (as seen in project 1). Therefore,
+we might be stuck doing static analysis on packets produced by a simulator like ns3 or after real-life simulations.
+
+4. Pseudocode from the paper was written by Paris in order to get us to start thinking about how to implement the
+algorithm from the paper.
+
+Paris also wrote this update document.

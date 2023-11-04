@@ -1,0 +1,23 @@
+There is 1 interface on the system:
+
+    Name                   : Wi-Fi
+    Description            : Intel(R) Wireless-AC 9462
+    GUID                   : ce9c7192-33c1-4b34-bda9-19a42563dd4d
+    Physical address       : f4:d1:08:0c:81:68
+    Interface type         : Primary
+    State                  : connected
+    SSID                   : Spiny Monster
+    BSSID                  : 14:cc:20:f1:46:b5
+    Network type           : Infrastructure
+    Radio type             : 802.11n
+    Authentication         : WPA2-Personal
+    Cipher                 : CCMP
+    Connection mode        : Profile
+    Band                   : 2.4 GHz
+    Channel                : 6
+    Receive rate (Mbps)    : 72.2
+    Transmit rate (Mbps)   : 54
+    Signal                 : 82%
+    Profile                : Spiny Monster
+
+    Hosted network status  : Not available
