@@ -41,3 +41,7 @@ we might be stuck doing static analysis on packets produced by a simulator like 
 algorithm from the paper.
 
 Paris also wrote this update document.
+
+We believe that this is in line with our milestones, as we have added a good bit
+of work with the pseudocode and research on our solution. Even though we had
+to pivot, we believe that we are still on track to finish the project on time.
