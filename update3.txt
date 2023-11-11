@@ -1,0 +1,50 @@
+Names: Paris Floyd and Abhaya Shrestha
+Date: 11/10/2023
+Update 3
+
+This week, our team did the following:
+
+1. Abhaya tried to install Kali Linux in order to capture packets better. This was necessary because he needed another
+way to generate packets related to an evil twin attack for our algorithm to work with, and he could not figure out
+how to change the SSID or password for his phone's hotspot.
+Its built-in packages (such as airmon-ng) allow us to create an evil twin AP better than a phone can.
+To this end, Abhaya found a tutorial for Kali linux on how to perform a test evil twin attack.
+He encountered many problems getting Kali Linux installed and set up and retried for many hours. The biggest problem
+ is that the iwconfig function does not return anything, which will be necessary for simulating scenario B (included below).
+If this problem persists, we will likely need to speak to the Linux User Group on campus, since neither of us are too
+confident setting up Linux machines. There is also the alternative of using Ubuntu's apt-get install in order to install
+airmon-ng. Or, we can utilize the library Scapy for Python, which will allow us to craft packets that look like an
+evil twin attack has occurred for testing purposes.
+
+2. Both of us read more from the research paper
+Abhaya figured out how to perform scenario B from the paper with IPtables. The strategy he formulated would be to
+forward traffic from the AP we set up to the genuine ap, as well as from the genuine AP back to our evil twin AP.
+The attack described as cenario C in the paper (the device connects straight to the evil twin AP rather than the evil
+twin being a man-in-the-middle) is much easier to set up than scenario B. This is the scenario that is taking place when
+Paris uses his phone as an evil twin hotspot for the victim device to connect to.
+
+
+3. Paris was able to successfully perform an evil twin attack using his phone hotspot, which had its SSID and password
+changed to match his home network's. This is good news, as it means that we can perform this attack in real life.
+However, his computer lacks the 'promisuous mode' for packet capturing, so applications like Wireshark and Pyshark cannot
+be used to capture packets live. Pyshark can still be used for static analysis (no real-time capture) on a computer like
+Paris', so we will proceed with static analysis for the meantime to verify the algorithm we have developed. However,
+we should still set up a real-time packet capturing device for computers that have promiscuous mode.
+
+4. Paris performed packet analysis on some a test packet capture downloaded from the Wireshark test pcap file repository:
+https://wiki.wireshark.org/uploads/__moin_import__/attachments/SampleCaptures/Network_Join_Nokia_Mobile.pcap
+A new function was developed, analyze_packet, which allows us to locate specific information in the packets of the pcap file.
+For now, Paris was able to find the Sequence number and Retry bit, which are both critically necessary for our evil twin detection
+algorithm. So long as those can be found, the next big thing to work on would be to find when two packets are authentication/
+association response frames. Basically, there are many packets sent on a network; we have to figure out which critical
+packets have to do with a request to connect and a response allowing connection from the AP. These may need to be doctored
+at first.
+
+Paris also wrote this update.
+
+We think that we are making decent progress. We are not behind or ahead of our milestone in terms of overall progress
+on the project, but the slightly different turns that we are taking might mean that we are further from completion than
+expected. That being said, we are confident that we can produce a working example to show to the class by the time that
+we have to present on our projects.
+
+

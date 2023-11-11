@@ -5,6 +5,7 @@ import subprocess
 import pyshark
 import os
 import sys
+import scapy
 
 def get_ssid_windows():
     result = subprocess.check_output(["netsh", "wlan", "show", "interfaces"])
@@ -32,16 +33,16 @@ def detect_evil_twin(r1, seq1, r2, seq2):
     if r1==0:
         #create database entry for the client
         #store MAC address, r1, and AID1 in the DB
-    if deauth_received:
-        # delete DB entry for client
-        return False
-    elif r2 == 0:
-        return True
-    elif r2 == 1 and seq1 == seq2:
-        if seq1 == seq2:
-            return True
-        else:
+        if deauth_received:
+            # delete DB entry for client
             return False
+        elif r2 == 0:
+            return True
+        elif r2 == 1 and seq1 == seq2:
+            if seq1 == seq2:
+                return True
+            else:
+                return False
     else:   # first response with R1 = 1
         # create database entry for the client
         # store MAC address, r1, and AID1 in the DB
@@ -58,6 +59,21 @@ def detect_evil_twin(r1, seq1, r2, seq2):
             return False
 
 
+# Function that uses pyshark to access elements of a pcap file. Will filter for association response frames
+def analyze_packet(filepath):
+    # Open the PCAP file
+    capture = pyshark.FileCapture(filepath)
+    for packet in capture:
+        timestamp = packet.sniff_timestamp
+        protocol = packet.transport_layer
+        print(f"Timestamp: {timestamp}, Protocol: {protocol}")
+
+        try:
+            seq = packet.wlan.seq
+            retry = packet.wlan.fc_retry
+            print(f"Sequence number: {seq}, Retry bit: {retry}")
+        except:
+            print("no sequence number or retry bit")
 
 
 ssid = get_ssid_windows()
@@ -65,3 +81,5 @@ print("Current SSID:", ssid)
 mac_type, mac_address = get_mac_address_windows()
 print("MAC Address:", mac_address)
 print("MAC Type:", mac_type)
+
+analyze_packet("test_pcaps/Network_Join_Nokia_Mobile.pcap")
