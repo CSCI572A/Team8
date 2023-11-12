@@ -39,7 +39,7 @@ def test_regular_4_way_hanshake_scenario(mock_association_response_frame):
     """Test regular 4 way handshake scenario."""
     ap_mac = "00:11:22:33:44:55"
     client_mac = "aa:bb:cc:dd:ee:ff"
-    packets = [
+    frames = [
         # authentication request frame sent by the client
         # Dot11.type values are 0-management, 1-control, 2-data
         # Dot11.subtype field indicates the type of management control or data frame.
@@ -61,7 +61,7 @@ def test_regular_4_way_hanshake_scenario(mock_association_response_frame):
         mock_association_response_frame(client_mac, ap_mac, 0x0001, 0x0001, 1),
     ]
 
-    assert has_evil_twin(packets) == False
+    assert has_evil_twin(frames) == False
 
 
 def test_evil_twin_scenario(mock_association_response_frame):
@@ -69,7 +69,7 @@ def test_evil_twin_scenario(mock_association_response_frame):
     ap_mac = "00:11:22:33:44:55"
     client_mac = "aa:bb:cc:dd:ee:ff"
     evil_twin_mac = "00:11:22:33:44:55"
-    packets = [
+    frames = [
         # authentication request frame sent by the client
         # Dot11.type values are 0-management, 1-control, 2-data
         # Dot11.subtype field indicates the type of management control or data frame.
@@ -92,4 +92,4 @@ def test_evil_twin_scenario(mock_association_response_frame):
         mock_association_response_frame(client_mac, ap_mac, 0x0001, 0x0001, 1),
     ]
 
-    assert has_evil_twin(packets) == True
+    assert has_evil_twin(frames) == True
