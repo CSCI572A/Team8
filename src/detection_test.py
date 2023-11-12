@@ -87,7 +87,7 @@ def test_evil_twin_scenario(mock_association_response_frame):
         / Dot11(type=0, subtype=0, addr1=ap_mac, addr2=client_mac, addr3=ap_mac)
         / Dot11AssoReq(),
         # evil twin sends an association response back to client
-        mock_association_response_frame(client_mac, ap_mac, 0x0001, 0x0001, 1),
+        mock_association_response_frame(client_mac, evil_twin_mac, 0x0001, 0x0001, 1),
         # ap sends an association response back to client
         mock_association_response_frame(client_mac, ap_mac, 0x0001, 0x0001, 1),
     ]
