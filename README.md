@@ -22,10 +22,10 @@
 # Formatting code
 
 1. Run
-`black .` for formatting code style
+`isort .` for sorting imports
 
 2. Run
-`isort .` for formatting sorting imports
+`black .` for formatting code style
 
 3. Run
 `pydocstyle` for formatting code documentation
