@@ -25,7 +25,7 @@
 `black .` for formatting code style
 
 2. Run
-`isort .` for formatting sorting style
+`isort .` for formatting sorting imports
 
 3. Run
 `pydocstyle` for formatting code documentation
