@@ -1,2 +1,2 @@
 """Init module."""
-from .main import *
+from .wifi_buddy import *
