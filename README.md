@@ -1,7 +1,7 @@
 # Setting up environment
 
 1. Create a virtual environment with Anaconda using
-`conda create --name <your_env_name> python=3.10`
+`conda create --name <your_env_name> python=3.10` and activate it using `conda activate <your_env_name>`
 
 2. Install pip with conda
 `conda install pip`
