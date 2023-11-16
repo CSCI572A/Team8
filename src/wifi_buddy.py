@@ -97,3 +97,6 @@ def main() -> None:
     sniff(
         iface=NETWORK_INTERFACE, lfilter=filter_frame, prn=process_packet, store=False
     )
+
+if __name__ == '__main__':
+    main()
