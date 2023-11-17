@@ -1,7 +1,7 @@
 """Detect evil twin program."""
 import os
 
-from scapy.all import Dot11, Dot11AssoReq, Dot11AssoResp, Dot11Auth, Packet, sniff
+from scapy.all import Dot11, Dot11AssoReq, Dot11AssoResp, Dot11Auth, Packet, conf, sniff
 
 # the network interface to sniff traffic on
 NETWORK_INTERFACE = os.getenv("NETWORK_INTERFACE", default="wlan0")
@@ -93,10 +93,17 @@ def process_packet(packet: Packet) -> None:
 
 def main() -> None:
     """Run main program."""
+    # Different super sockets are available in Scapy: the native ones, and the ones that use libpcap (to send/receive packets).
+    # By default, Scapy will try to use the native ones (except on Windows, where the winpcap/npcap ones are preferred). To manually use the libpcap ones, you must:
+    # - On Unix/OSX: be sure to have libpcap installed.
+    # - On Windows: have Npcap/Winpcap installed. (default)
+    # conf.use_pcap = True will update the sockets pointing to conf.L2socket and conf.L3socket.
+    conf.use_pcap = True
     # Sniff packets infinitely
     sniff(
-        iface=NETWORK_INTERFACE, lfilter=filter_frame, prn=process_packet, store=False
+        iface=NETWORK_INTERFACE, lfilter=filter_frame, prn=process_packet, monitor=True
     )
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()
