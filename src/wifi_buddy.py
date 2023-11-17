@@ -105,7 +105,11 @@ def main() -> None:
     conf.use_pcap = True
     # Sniff packets infinitely
     sniff(
-        iface=NETWORK_INTERFACE, lfilter=filter_frame, prn=process_packet, monitor=True
+        iface=NETWORK_INTERFACE,
+        lfilter=filter_frame,
+        prn=process_packet,
+        monitor=True,
+        store=False,
     )
 
 
