@@ -1,3 +1,5 @@
+# When running from command line, pass arguments:
+# NETWORK_INTERFACE="wlan0" CLIENT_MAC_ADDRESS="00.00..." python3 wifi_buddy.py
 """Detect evil twin program."""
 import os
 
@@ -36,7 +38,6 @@ def is_client_de_authentication_frame(frame: Packet) -> bool:
 
 def has_evil_twin(frame: Packet) -> bool:
     """Return whether evil twin was detected.
-
     Receipt of two association responses indicates towards a suspicious activity.
     Taking the order in which responses were received, and frame characteristics like
     retry bits, sequence number and association ID (AID) of both responses to consider evil twin attack.
@@ -44,6 +45,26 @@ def has_evil_twin(frame: Packet) -> bool:
     two association responses because it means the client connected to the AP, then
     disconnected from it and reconnected.
     """
+
+    if is_association_response_frame(frame):
+        # find another packet that is a response frame stored in the database
+        # or, find a deauthentication packet
+        found_deauth_frame = False
+        for frame2 in DB:
+            if frame2 != frame and is_association_response_frame(frame2):
+                # this is the first packet sent to the device in response. We need to investigate for evil twin
+                # Execute evil twin detection algorithm with two sequence numbers and retry bits
+                frame2
+
+            elif is_client_de_authentication_frame(frame2):
+                # Boolean is true
+                found_deauth_frame = True
+
+        # We didn't find another association response in the DB. Return False
+        return False
+    else:
+        return False
+
     raise NotImplementedError
 
 
