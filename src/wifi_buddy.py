@@ -2,17 +2,18 @@
 # NETWORK_INTERFACE="wlan0" CLIENT_MAC_ADDRESS="00.00..." python3 wifi_buddy.py
 """Detect evil twin program."""
 import os
+from typing import List
 
-from scapy.all import Dot11, Dot11AssoReq, Dot11AssoResp, Dot11Auth, Packet, sniff
+from scapy.all import Dot11, Dot11AssoReq, Dot11AssoResp, Dot11Auth, Packet, conf, sniff
 
 # the network interface to sniff traffic on
-NETWORK_INTERFACE = os.getenv("NETWORK_INTERFACE", default="wlan0")
+NETWORK_INTERFACE: str = os.getenv("NETWORK_INTERFACE", default="wlan0")
 # Dot11 frames the client has received so far relating to
 # 4-way handshake, de-authentication frame, and association response
 # frames. Represents a database
-DB = []
+DB: List[Packet] = []
 # the client mac address
-CLIENT_MAC_ADDRESS = os.getenv("CLIENT_MAC_ADDRESS", default="00:00:00:00:00:00")
+CLIENT_MAC_ADDRESS: str = os.getenv("CLIENT_MAC_ADDRESS", default="00:00:00:00:00:00")
 
 
 def is_association_response_frame(frame: Packet) -> bool:
@@ -110,11 +111,28 @@ def process_packet(packet: Packet) -> None:
     if has_evil_twin(packet):
         print("EVIL TWIN DETECTED!!")
     print(packet.summary())
+    # saving packet for further analysis of evil twin
+    # detection
+    DB.append(packet)
 
 
 def main() -> None:
     """Run main program."""
+    # Different super sockets are available in Scapy: the native ones, and the ones that use libpcap (to send/receive packets).
+    # By default, Scapy will try to use the native ones (except on Windows, where the winpcap/npcap ones are preferred). To manually use the libpcap ones, you must:
+    # - On Unix/OSX: be sure to have libpcap installed.
+    # - On Windows: have Npcap/Winpcap installed. (default)
+    # conf.use_pcap = True will update the sockets pointing to conf.L2socket and conf.L3socket.
+    conf.use_pcap = True
     # Sniff packets infinitely
     sniff(
-        iface=NETWORK_INTERFACE, lfilter=filter_frame, prn=process_packet, store=False
+        iface=NETWORK_INTERFACE,
+        lfilter=filter_frame,
+        prn=process_packet,
+        monitor=True,
+        store=False,
     )
+
+
+if __name__ == "__main__":
+    main()
