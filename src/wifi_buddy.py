@@ -4,8 +4,8 @@
 import os
 from typing import List
 
-from scapy.all import Dot11, Dot11AssoReq, Dot11AssoResp, Dot11Auth, Dot11Retry Packet, conf, sniff
-
+from scapy.all import Dot11, Dot11AssoReq, Dot11AssoResp, Dot11Auth,  Packet, conf, sniff
+# TODO: import Dot11Retry
 # the network interface to sniff traffic on
 NETWORK_INTERFACE: str = os.getenv("NETWORK_INTERFACE", default="wlan0")
 # Dot11 frames the client has received so far relating to
@@ -65,7 +65,7 @@ def has_evil_twin(frame1: Packet) -> bool:
                 # Pass to detection function
                 return determine_evil_twin(r1, seq1, r2, seq2, found_deauth_frame)
 
-            elif is_client_de_authentication_frame(frame2):     # TODO: check to make sure that this deauth frame is associated with the original connection request
+            elif is_client_de_authentication_frame(frame2):     # TODO: check to make sure that this deauth frame is associated with the original connection request and occurs between the two frames
                 # Boolean is true
                 found_deauth_frame = True
 
@@ -149,7 +149,9 @@ def process_packet(packet: Packet) -> None:
     """Process packet received from the filter."""
     if has_evil_twin(packet):
         print("EVIL TWIN DETECTED!!")
-    print(packet.summary())
+    if Dot11 in packet:
+        print(packet)
+    #print(packet.summary())
     # saving packet for further analysis of evil twin
     # detection
     DB.append(packet)
@@ -169,7 +171,7 @@ def main() -> None:
         lfilter=filter_frame,
         prn=process_packet,
         monitor=True,
-        store=False,
+        store=False
     )
 
 
