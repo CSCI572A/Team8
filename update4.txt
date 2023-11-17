@@ -36,7 +36,7 @@ the tests were developed in Scapy, and our filter recognizes them appropriately 
 developed tests to check the functions is_association_response_frame and is_client_de_authentication_frame, which are
 passing. This indicates good progress on the initial detection of our function.
 
-4. Besides the unit testing, Abhaya and Paris both performed testing individually in a more real-world scenario,
+6. Besides the unit testing, Abhaya and Paris both performed testing individually in a more real-world scenario,
 using the sniff function to listen for packets on our local networks. Abhaya found out that, on his newer Mac computer,
 he cannot sniff packets with Scapy while connected to a network. Paris found that, on his Windows computer, he had
 trouble running the sniff command with the same arguments as Abhaya. Maybe this has to do with his hardware; he was
@@ -45,7 +45,7 @@ tested, and sniffing could be performed without a network interface specified. H
 functionality was missing. The filter also appeared to be broken during Paris' testing, as no 802.11 packets were being
 captured even when new internet connections were being made.
 
-5. Paris wrote this update.
+7. Paris wrote this update.
 
 We believe that we are on decent track to creating a working application. We think that there are many ways that we can
 show/test the correctness of our algorithms using either pcap files or specific Scapy files that can simulate an
