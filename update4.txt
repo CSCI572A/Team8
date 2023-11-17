@@ -4,5 +4,50 @@ Update 4
 
 This week, our team did the following:
 
+1. Abhaya reorganized the file system, placing all of our important, functional code into src.
 
+2. Abhaya developed the requirements.txt file to specify which libraries are necessary in order for our program to run.
 
+3. Abhaya refined the code present in our initial testing and created the file src/wifi_buddy.py. Functions are
+well-commented and their purposes are well-described. After some discussion, we both decided to use the Scapy library
+to sniff and parse through packets because it works well as a live sniffing tool within python and allows us
+to move away from the idea of using static analysis. With a working development of Scapy, our application can work for
+a user as initially intended. In order to get the scapy sniffer to work, Abhaya tested the sniff() function with a few
+different parameters and created a simple packet processing function that is called whenever a packet is read as well as
+a packet filter that looks for 802.11 packets and only saves those. Packets are saved to an internal database whenever
+they are sniffed for later use in detecting the evil twin. Abhaya also created numerous functions in wifi_buddy.py in
+order to logically decide whether certain things were true about the packet that were necessary to detect if an evil twin
+was present. This includes the is_association_response_frame and the is_client_de_authentication_frame. This took a
+considerable amount of research in order to understand properly and represents a big leap in terms of the progress that
+we have made in our development of our application.
+
+4. Paris developed the main function for detecting if an evil twin is present, called has_evil_twin. This is called
+on every packet that is sniffed by Scapy and compares that packet to previous entries in the database. Each packet in
+the database is iteratively compared to the new packet to see if they are both association response frames from a Wi-Fi
+AP to the host computer. If this is true for the two candidate frames, we must deploy another algorithm that will check
+for the presence of an evil twin based on the contents of these packets. This algorithm is encapsulated in the function
+determine_evil_twin, and it represents the algorithm developed by Agarwal et al. In order to properly use this function,
+the relevant information from two candidate packets (sequence number and retry bits) are extracted. There is also a check
+for any previous deauthentication packets, which is passed to the determine_evil_twin function. The effects of a
+deauthentication packet were on deciding the presence of an evil twin were researched and incorporated into the algorithm.
+
+5. Abhaya developed unit tests that showed the correctness of our filter for 802.11 packets. The test packets used in
+the tests were developed in Scapy, and our filter recognizes them appropriately and prints them to the console. He also
+developed tests to check the functions is_association_response_frame and is_client_de_authentication_frame, which are
+passing. This indicates good progress on the initial detection of our function.
+
+4. Besides the unit testing, Abhaya and Paris both performed testing individually in a more real-world scenario,
+using the sniff function to listen for packets on our local networks. Abhaya found out that, on his newer Mac computer,
+he cannot sniff packets with Scapy while connected to a network. Paris found that, on his Windows computer, he had
+trouble running the sniff command with the same arguments as Abhaya. Maybe this has to do with his hardware; he was
+not able to complete lab 1 in this class with the computer he's using for the tests. Many different configurations were
+tested, and sniffing could be performed without a network interface specified. However, this means that a lot of
+functionality was missing. The filter also appeared to be broken during Paris' testing, as no 802.11 packets were being
+captured even when new internet connections were being made.
+
+5. Paris wrote this update.
+
+We believe that we are on decent track to creating a working application. We think that there are many ways that we can
+show/test the correctness of our algorithms using either pcap files or specific Scapy files that can simulate an
+Evil Twin attack. Our goal will be to actually detect a real-life evil twin attack by the time that our final project
+report is due.

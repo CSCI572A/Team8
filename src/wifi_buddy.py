@@ -77,6 +77,8 @@ def has_evil_twin(frame1: Packet) -> bool:
     raise NotImplementedError
 
 def determine_evil_twin(r1, seq1, r2, seq2, deauth_received):
+    """Once information about two candidate packets for detecting an evil twin is retrieved,
+    we run this algorithm from the paper by Agarwal et al. to functionally determine if the evil twin is present."""
     if r1 == 0:
         # create database entry for the client
         # store MAC address, r1, and AID1 in the DB
