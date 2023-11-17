@@ -1,16 +1,17 @@
 """Detect evil twin program."""
 import os
+from typing import List
 
 from scapy.all import Dot11, Dot11AssoReq, Dot11AssoResp, Dot11Auth, Packet, conf, sniff
 
 # the network interface to sniff traffic on
-NETWORK_INTERFACE = os.getenv("NETWORK_INTERFACE", default="wlan0")
+NETWORK_INTERFACE: str = os.getenv("NETWORK_INTERFACE", default="wlan0")
 # Dot11 frames the client has received so far relating to
 # 4-way handshake, de-authentication frame, and association response
 # frames. Represents a database
-DB = []
+DB: List[Packet] = []
 # the client mac address
-CLIENT_MAC_ADDRESS = os.getenv("CLIENT_MAC_ADDRESS", default="00:00:00:00:00:00")
+CLIENT_MAC_ADDRESS: str = os.getenv("CLIENT_MAC_ADDRESS", default="00:00:00:00:00:00")
 
 
 def is_association_response_frame(frame: Packet) -> bool:
@@ -89,6 +90,9 @@ def process_packet(packet: Packet) -> None:
     if has_evil_twin(packet):
         print("EVIL TWIN DETECTED!!")
     print(packet.summary())
+    # saving packet for further analysis of evil twin
+    # detection
+    DB.append(packet)
 
 
 def main() -> None:
