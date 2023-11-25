@@ -36,10 +36,10 @@ def mock_association_response_frame():
         response_frame[Dot11].SC = sequence_control
 
         # Set the association ID field
-        response_frame[Dot11AssoResp].assoc_id = association_id
+        response_frame[Dot11AssoResp].AID = association_id
 
         # Set the retry field
-        response_frame[Dot11AssoResp].retry = retry
+        response_frame[Dot11].FCfield.retry = retry
 
     return get_frame
 
