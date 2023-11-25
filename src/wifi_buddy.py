@@ -6,7 +6,6 @@ from typing import List
 
 from scapy.all import Dot11, Dot11AssoReq, Dot11AssoResp, Dot11Auth, Packet, conf, sniff
 
-# TODO: import Dot11Retry
 # the network interface to sniff traffic on
 NETWORK_INTERFACE: str = os.getenv("NETWORK_INTERFACE", default="wlan0")
 # Dot11 frames the client has received so far relating to
@@ -17,7 +16,7 @@ DB: List[Packet] = []
 CLIENT_MAC_ADDRESS: str = os.getenv("CLIENT_MAC_ADDRESS", default="00:00:00:00:00:00")
 
 
-def is_association_response_frame(frame: Packet) -> bool:
+def is_association_response_frame_for_client(frame: Packet) -> bool:
     """Return whether frame is association response frame."""
     return (
         Dot11 in frame
@@ -37,8 +36,7 @@ def is_client_de_authentication_frame(frame: Packet) -> bool:
         and frame[Dot11].addr2 == CLIENT_MAC_ADDRESS
     )
 
-
-def has_evil_twin(frame1: Packet) -> bool:
+def has_evil_twin(current_frame: Packet) -> bool:
     """Return whether evil twin was detected.
 
     Receipt of two association responses indicates towards a suspicious activity.
@@ -48,49 +46,44 @@ def has_evil_twin(frame1: Packet) -> bool:
     two association responses because it means the client connected to the AP, then
     disconnected from it and reconnected.
     """
-    if is_association_response_frame(frame1):
+    if is_association_response_frame_for_client(current_frame):
         # find another packet that is a response frame stored in the database
         # or, find a deauthentication packet
-        found_deauth_frame = False
-        for frame2 in DB:
-            if frame2 != frame1 and is_association_response_frame(frame2):
-                # this is the first packet sent to the device in response. We need to investigate for evil twin
-                # Execute evil twin detection algorithm with two sequence numbers and retry bits
-                # Access sequence numbers
-                seq1 = frame1[Dot11].seq
-                seq2 = frame2[Dot11].seq
-                # Access retry bits
-                r1 = frame1.FCfield & Dot11Retry  # Not tested yet.
-                r2 = frame2.FCfield & Dot11Retry
-
-                # Pass to detection function
-                return determine_evil_twin(r1, seq1, r2, seq2, found_deauth_frame)
-
-            elif is_client_de_authentication_frame(
-                frame2
-            ):  # TODO: check to make sure that this deauth frame is associated with the original connection request and occurs between the two frames
-                # Boolean is true
-                found_deauth_frame = True
-
-        # We didn't find another association response in the DB. Return False
-        return False
-    else:
-        return False
+        deauth_frame = next((frame for frame in DB if is_client_de_authentication_frame(frame)), None)
+        previous_asso_resp_frame = next((frame for frame in DB if is_association_response_frame_for_client(frame)), None)
+        found_deauth_frame = (deauth_frame is not None
+                and previous_asso_resp_frame is not None
+                and previous_asso_resp_frame[Dot11].addr2 == deauth_frame[Dot11].addr1 # the ap is the same for deauth frame
+                # receiver and the sender of the association response frame from the past
+            )
+        if previous_asso_resp_frame is not None:
+            return determine_evil_twin(
+                    current_frame[Dot11].FCfield.retry,
+                    current_frame[Dot11].SC,
+                    previous_asso_resp_frame[Dot11].FCfield.retry,
+                    previous_asso_resp_frame[Dot11].SC,
+                    found_deauth_frame,
+            )
+    return False
 
 
-def determine_evil_twin(r1, seq1, r2, seq2, deauth_received):
+def determine_evil_twin(
+    r1: bool, seq1: int, r2: bool, seq2: int, deauth_received: bool
+) -> bool:
     """Run this algorithm from the paper by Agarwal et al."""
-    if r1 == 0:
+    global DB
+    if not r1:
         # create database entry for the client
         # store MAC address, r1, and AID1 in the DB
         if deauth_received:
             # de-authorization frames being absent should raise the alarm for evil twin
             # If they are present then an evil twin is not present.
             # delete local DB entry (we aren't doing this)
+            DB = []
             return False
-        elif r2 == 0:
+        elif not r2:
             return True
-        elif r2 == 1 and seq1 == seq2:
+        elif r2 and seq1 == seq2:
             if seq1 == seq2:
                 return True
             else:
@@ -100,12 +93,13 @@ def determine_evil_twin(r1, seq1, r2, seq2, deauth_received):
         # store MAC address, r1, and AID1 in the DB
         if deauth_received:
             # delete DB entry for client
+            DB = []
             return False
-        elif r2 == 0:
+        elif not r2:
             # store MAC address, r2, seq2 and AID2 in the DB
             # Fetch seq1 value for client from DB
             return True
-        elif r2 == 1:
+        elif r2:
             return True
         else:
             return False
@@ -143,7 +137,7 @@ def filter_frame(packet: Packet) -> bool:
         is_authentication_request_frame
         or is_authentication_response_frame
         or is_association_request_frame
-        or is_association_response_frame(packet)
+        or is_association_response_frame_for_client(packet)
         or is_client_de_authentication_frame(packet)
     )
 
@@ -152,12 +146,10 @@ def process_packet(packet: Packet) -> None:
     """Process packet received from the filter."""
     if has_evil_twin(packet):
         print("EVIL TWIN DETECTED!!")
+        DB = []
     if Dot11 in packet:
         print(packet)
-    # print(packet.summary())
-    # saving packet for further analysis of evil twin
-    # detection
-    DB.append(packet)
+        DB.append(packet)
 
 
 def main() -> None:
