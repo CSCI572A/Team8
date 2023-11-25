@@ -1,5 +1,4 @@
 """Test evil twin detection."""
-"""Good read on what each field for 802.11 frames are: https://howiwifi.com/2020/07/13/802-11-frame-types-and-formats/#:~:text=The%20image%20below%20shows%20the,%2C%20control%2C%20or%20data%20frame."""
 
 import pytest
 from scapy.all import Dot11, Dot11AssoReq, Dot11AssoResp, Dot11Auth, RadioTap
@@ -7,7 +6,6 @@ from scapy.all import Dot11, Dot11AssoReq, Dot11AssoResp, Dot11Auth, RadioTap
 from . import CLIENT_MAC_ADDRESS, has_evil_twin, wifi_buddy
 
 ap_mac = "00:11:22:33:44:55"
-evil_twin_mac = "00:11:22:33:44:55"
 
 
 @pytest.fixture
@@ -41,12 +39,14 @@ def mock_association_response_frame():
         # Set the retry field
         response_frame[Dot11].FCfield.retry = retry
 
+        return response_frame
+
     return get_frame
 
 
-def test_regular_4_way_hanshake_scenario(mock_association_response_frame, monkeypatch):
-    """Test regular 4 way handshake scenario."""
-    # mock what we have received in the DB so far
+@pytest.fixture
+def mock_4_way_handshake_incomplete(monkeypatch):
+    """Mock 4 way handshake incomplete."""
     monkeypatch.setattr(
         wifi_buddy,
         "DB",
@@ -79,53 +79,368 @@ def test_regular_4_way_hanshake_scenario(mock_association_response_frame, monkey
             / Dot11AssoReq(),
         ],
     )
-    # ap sends an association response back to client
-    # Dot11AssoResp.status=0 indicates a successful association
+
+
+@pytest.fixture
+def mock_4_way_handshake(monkeypatch, mock_association_response_frame):
+    """Mock 4 way handshake."""
+    monkeypatch.setattr(
+        wifi_buddy,
+        "DB",
+        [
+            # authentication request frame sent by the client
+            # Dot11.type values are 0-management, 1-control, 2-data
+            # Dot11.subtype field indicates the type of management control or data frame.
+            RadioTap()
+            / Dot11(
+                type=0, subtype=11, addr1=ap_mac, addr2=CLIENT_MAC_ADDRESS, addr3=ap_mac
+            )
+            / Dot11Auth(algo=0, seqnum=1, status=0),
+            # authentication response frame sent by the ap
+            # subtype=12 to indicate an authentication response frame
+            RadioTap()
+            / Dot11(
+                type=0,
+                subtype=12,
+                addr1=CLIENT_MAC_ADDRESS,
+                addr2=ap_mac,
+                addr3=CLIENT_MAC_ADDRESS,
+            )
+            / Dot11Auth(algo=0, seqnum=2, status=0),
+            # client sends an association request to the ap
+            # type=0 and subtype=0 to indicate an association request
+            RadioTap()
+            / Dot11(
+                type=0, subtype=0, addr1=ap_mac, addr2=CLIENT_MAC_ADDRESS, addr3=ap_mac
+            )
+            / Dot11AssoReq(),
+            # ap/eviltwin sends association response frame,
+            mock_association_response_frame(
+                ap_mac=ap_mac,
+                sequence_control=0x0001,
+                association_id=0x0001,
+                retry=False,
+            ),
+        ],
+    )
+
+
+@pytest.fixture
+def mock_4_way_handshake_retry(monkeypatch, mock_association_response_frame):
+    """Mock 4 way handshake in the event of retry."""
+    monkeypatch.setattr(
+        wifi_buddy,
+        "DB",
+        [
+            # authentication request frame sent by the client
+            # Dot11.type values are 0-management, 1-control, 2-data
+            # Dot11.subtype field indicates the type of management control or data frame.
+            RadioTap()
+            / Dot11(
+                type=0, subtype=11, addr1=ap_mac, addr2=CLIENT_MAC_ADDRESS, addr3=ap_mac
+            )
+            / Dot11Auth(algo=0, seqnum=1, status=0),
+            # authentication response frame sent by the ap
+            # subtype=12 to indicate an authentication response frame
+            RadioTap()
+            / Dot11(
+                type=0,
+                subtype=12,
+                addr1=CLIENT_MAC_ADDRESS,
+                addr2=ap_mac,
+                addr3=CLIENT_MAC_ADDRESS,
+            )
+            / Dot11Auth(algo=0, seqnum=2, status=0),
+            # client sends an association request to the ap
+            # type=0 and subtype=0 to indicate an association request
+            RadioTap()
+            / Dot11(
+                type=0, subtype=0, addr1=ap_mac, addr2=CLIENT_MAC_ADDRESS, addr3=ap_mac
+            )
+            / Dot11AssoReq(),
+            # ap/eviltwin sends association response frame,
+            mock_association_response_frame(
+                ap_mac=ap_mac,
+                sequence_control=0x0001,
+                association_id=0x0001,
+                retry=True,
+            ),
+        ],
+    )
+
+
+@pytest.fixture
+def mock_4_way_handshake_retry_deauth(monkeypatch, mock_association_response_frame):
+    """Mock 4 way handshake in the event of retry."""
+    monkeypatch.setattr(
+        wifi_buddy,
+        "DB",
+        [
+            # authentication request frame sent by the client
+            # Dot11.type values are 0-management, 1-control, 2-data
+            # Dot11.subtype field indicates the type of management control or data frame.
+            RadioTap()
+            / Dot11(
+                type=0, subtype=11, addr1=ap_mac, addr2=CLIENT_MAC_ADDRESS, addr3=ap_mac
+            )
+            / Dot11Auth(algo=0, seqnum=1, status=0),
+            # authentication response frame sent by the ap
+            # subtype=12 to indicate an authentication response frame
+            RadioTap()
+            / Dot11(
+                type=0,
+                subtype=12,
+                addr1=CLIENT_MAC_ADDRESS,
+                addr2=ap_mac,
+                addr3=CLIENT_MAC_ADDRESS,
+            )
+            / Dot11Auth(algo=0, seqnum=2, status=0),
+            # client sends an association request to the ap
+            # type=0 and subtype=0 to indicate an association request
+            RadioTap()
+            / Dot11(
+                type=0, subtype=0, addr1=ap_mac, addr2=CLIENT_MAC_ADDRESS, addr3=ap_mac
+            )
+            / Dot11AssoReq(),
+            # ap/eviltwin sends association response frame,
+            mock_association_response_frame(
+                ap_mac=ap_mac,
+                sequence_control=0x0001,
+                association_id=0x0001,
+                retry=True,
+            ),
+            # de authentication frame from client
+            RadioTap()
+            / Dot11(
+                type=0, subtype=12, addr1=ap_mac, addr2=CLIENT_MAC_ADDRESS, addr3=ap_mac
+            ),
+        ],
+    )
+
+
+@pytest.fixture
+def mock_4_way_handshake_with_deauth(monkeypatch, mock_association_response_frame):
+    """Mock 4 way handshake with deauth frame received."""
+    monkeypatch.setattr(
+        wifi_buddy,
+        "DB",
+        [
+            # authentication request frame sent by the client
+            # Dot11.type values are 0-management, 1-control, 2-data
+            # Dot11.subtype field indicates the type of management control or data frame.
+            RadioTap()
+            / Dot11(
+                type=0, subtype=11, addr1=ap_mac, addr2=CLIENT_MAC_ADDRESS, addr3=ap_mac
+            )
+            / Dot11Auth(algo=0, seqnum=1, status=0),
+            # authentication response frame sent by the ap
+            # subtype=12 to indicate an authentication response frame
+            RadioTap()
+            / Dot11(
+                type=0,
+                subtype=12,
+                addr1=CLIENT_MAC_ADDRESS,
+                addr2=ap_mac,
+                addr3=CLIENT_MAC_ADDRESS,
+            )
+            / Dot11Auth(algo=0, seqnum=2, status=0),
+            # client sends an association request to the ap
+            # type=0 and subtype=0 to indicate an association request
+            RadioTap()
+            / Dot11(
+                type=0, subtype=0, addr1=ap_mac, addr2=CLIENT_MAC_ADDRESS, addr3=ap_mac
+            )
+            / Dot11AssoReq(),
+            # ap/evil twin sends response asso frame back to client
+            mock_association_response_frame(
+                ap_mac=ap_mac,
+                sequence_control=0x0001,
+                association_id=0x0001,
+                retry=False,
+            ),
+            # de authentication frame from client
+            RadioTap()
+            / Dot11(
+                type=0, subtype=12, addr1=ap_mac, addr2=CLIENT_MAC_ADDRESS, addr3=ap_mac
+            ),
+        ],
+    )
+
+
+def test_regular_4_way_hanshake_scenario(
+    mock_association_response_frame, mock_4_way_handshake_incomplete
+):
+    """Test regular 4 way handshake scenario."""
     assert (
-        has_evil_twin(mock_association_response_frame(ap_mac, 0x0001, 0x0001, 1))
+        has_evil_twin(
+            mock_association_response_frame(
+                ap_mac=ap_mac,
+                sequence_control=0x0001,
+                association_id=0x0001,
+                retry=False,
+            )
+        )
         == False
     )
 
 
-def test_evil_twin_scenario(mock_association_response_frame, monkeypatch):
-    """Test evil twin scenario from https://link.springer.com/article/10.1007/s10776-018-0396-1."""
-    # mock what we have received in the DB so far
-    monkeypatch.setattr(
-        wifi_buddy,
-        "DB",
-        [
-            # authentication request frame sent by the client
-            # Dot11.type values are 0-management, 1-control, 2-data
-            # Dot11.subtype field indicates the type of management control or data frame.
-            RadioTap()
-            / Dot11(
-                type=0, subtype=11, addr1=ap_mac, addr2=CLIENT_MAC_ADDRESS, addr3=ap_mac
-            )
-            / Dot11Auth(algo=0, seqnum=1, status=0),
-            # authentication response frame sent by the ap
-            # subtype=12 to indicate an authentication response frame
-            RadioTap()
-            / Dot11(
-                type=0,
-                subtype=12,
-                addr1=CLIENT_MAC_ADDRESS,
-                addr2=ap_mac,
-                addr3=CLIENT_MAC_ADDRESS,
-            )
-            / Dot11Auth(algo=0, seqnum=2, status=0),
-            # client sends an association request to the ap
-            # type=0 and subtype=0 to indicate an association request
-            RadioTap()
-            / Dot11(
-                type=0, subtype=0, addr1=ap_mac, addr2=CLIENT_MAC_ADDRESS, addr3=ap_mac
-            )
-            / Dot11AssoReq(),
-            # evil twin sends an association response back to client
-            mock_association_response_frame(evil_twin_mac, 0x0001, 0x0001, 1),
-        ],
-    )
-    # ap sends an association response back to client
+def test_evil_twin_scenario_1(mock_association_response_frame, mock_4_way_handshake):
+    """Test case R1 = 0, R2 = 0, Seq1 = Seq2."""
     assert (
-        has_evil_twin(mock_association_response_frame(ap_mac, 0x0001, 0x0001, 1))
+        has_evil_twin(
+            mock_association_response_frame(
+                ap_mac=ap_mac,
+                sequence_control=0x0001,
+                association_id=0x0001,
+                retry=False,
+            )
+        )
+        == True
+    )
+
+
+def test_evil_twin_scenario_2(mock_association_response_frame, mock_4_way_handshake):
+    """Test case R1 = 0, R2 = 0, Seq1 != Seq2."""
+    assert (
+        has_evil_twin(
+            mock_association_response_frame(
+                ap_mac=ap_mac,
+                sequence_control=0x0002,
+                association_id=0x0001,
+                retry=False,
+            )
+        )
+        == True
+    )
+
+
+def test_evil_twin_scenario_2_deauth(
+    mock_association_response_frame, mock_4_way_handshake_with_deauth
+):
+    """Test case R1 = 0, R2 = 0, Seq1 != Seq2, and deauth frame received."""
+    assert (
+        has_evil_twin(
+            mock_association_response_frame(
+                ap_mac=ap_mac,
+                sequence_control=0x0002,
+                association_id=0x0001,
+                retry=False,
+            )
+        )
+        == False
+    )
+
+
+def test_evil_twin_scenario_3(mock_association_response_frame, mock_4_way_handshake):
+    """Test case R1 = 0, R2 = 1, Seq1 = Seq2, AID1 != AID2."""
+    assert (
+        has_evil_twin(
+            mock_association_response_frame(
+                ap_mac=ap_mac,
+                sequence_control=0x0001,
+                association_id=0x0002,
+                retry=True,
+            )
+        )
+        == True
+    )
+
+
+def test_evil_twin_scenario_4(mock_association_response_frame, mock_4_way_handshake):
+    """Test case R1 = 0, R2 = 1, Seq1 != Seq2."""
+    assert (
+        has_evil_twin(
+            mock_association_response_frame(
+                ap_mac=ap_mac,
+                sequence_control=0x0002,
+                association_id=0x0001,
+                retry=True,
+            )
+        )
+        == True
+    )
+
+
+def test_evil_twin_scenario_5(
+    mock_association_response_frame, mock_4_way_handshake_retry
+):
+    """Test case R1 = 1, R2 = 0, Seq1 = Seq2."""
+    assert (
+        has_evil_twin(
+            mock_association_response_frame(
+                ap_mac=ap_mac,
+                sequence_control=0x0001,
+                association_id=0x0001,
+                retry=False,
+            )
+        )
+        == True
+    )
+
+
+def test_evil_twin_scenario_6(
+    mock_association_response_frame, mock_4_way_handshake_retry
+):
+    """Test case R1 = 1, R2 = 0, Seq1 != Seq2."""
+    assert (
+        has_evil_twin(
+            mock_association_response_frame(
+                ap_mac=ap_mac,
+                sequence_control=0x0002,
+                association_id=0x0001,
+                retry=False,
+            )
+        )
+        == True
+    )
+
+
+def test_evil_twin_scenario_6_deauth(
+    mock_association_response_frame, mock_4_way_handshake_retry_deauth
+):
+    """Test case R1 = 1, R2 = 0, Seq1 != Seq2."""
+    assert (
+        has_evil_twin(
+            mock_association_response_frame(
+                ap_mac=ap_mac,
+                sequence_control=0x0002,
+                association_id=0x0001,
+                retry=False,
+            )
+        )
+        == False
+    )
+
+
+def test_evil_twin_scenario_7(
+    mock_association_response_frame, mock_4_way_handshake_retry
+):
+    """Test case R1 = 1, R2 = 1, Seq1 = Seq2, AID1 != AID2."""
+    assert (
+        has_evil_twin(
+            mock_association_response_frame(
+                ap_mac=ap_mac,
+                sequence_control=0x0001,
+                association_id=0x0002,
+                retry=True,
+            )
+        )
+        == True
+    )
+
+
+def test_evil_twin_scenario_8(
+    mock_association_response_frame, mock_4_way_handshake_retry
+):
+    """Test case R1 = 1, R2 = 1, Seq1 != Seq2."""
+    assert (
+        has_evil_twin(
+            mock_association_response_frame(
+                ap_mac=ap_mac,
+                sequence_control=0x0002,
+                association_id=0x0001,
+                retry=True,
+            )
+        )
         == True
     )

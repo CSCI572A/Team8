@@ -4,7 +4,8 @@
 import os
 from typing import List
 
-from scapy.all import Dot11, Dot11AssoReq, Dot11AssoResp, Dot11Auth,  Packet, conf, sniff
+from scapy.all import Dot11, Dot11AssoReq, Dot11AssoResp, Dot11Auth, Packet, conf, sniff
+
 # TODO: import Dot11Retry
 # the network interface to sniff traffic on
 NETWORK_INTERFACE: str = os.getenv("NETWORK_INTERFACE", default="wlan0")
@@ -39,6 +40,7 @@ def is_client_de_authentication_frame(frame: Packet) -> bool:
 
 def has_evil_twin(frame1: Packet) -> bool:
     """Return whether evil twin was detected.
+
     Receipt of two association responses indicates towards a suspicious activity.
     Taking the order in which responses were received, and frame characteristics like
     retry bits, sequence number and association ID (AID) of both responses to consider evil twin attack.
@@ -46,7 +48,6 @@ def has_evil_twin(frame1: Packet) -> bool:
     two association responses because it means the client connected to the AP, then
     disconnected from it and reconnected.
     """
-
     if is_association_response_frame(frame1):
         # find another packet that is a response frame stored in the database
         # or, find a deauthentication packet
@@ -59,13 +60,15 @@ def has_evil_twin(frame1: Packet) -> bool:
                 seq1 = frame1[Dot11].seq
                 seq2 = frame2[Dot11].seq
                 # Access retry bits
-                r1 = frame1.FCfield & Dot11Retry    # Not tested yet.
+                r1 = frame1.FCfield & Dot11Retry  # Not tested yet.
                 r2 = frame2.FCfield & Dot11Retry
 
                 # Pass to detection function
                 return determine_evil_twin(r1, seq1, r2, seq2, found_deauth_frame)
 
-            elif is_client_de_authentication_frame(frame2):     # TODO: check to make sure that this deauth frame is associated with the original connection request and occurs between the two frames
+            elif is_client_de_authentication_frame(
+                frame2
+            ):  # TODO: check to make sure that this deauth frame is associated with the original connection request and occurs between the two frames
                 # Boolean is true
                 found_deauth_frame = True
 
@@ -74,11 +77,9 @@ def has_evil_twin(frame1: Packet) -> bool:
     else:
         return False
 
-    raise NotImplementedError
 
 def determine_evil_twin(r1, seq1, r2, seq2, deauth_received):
-    """Once information about two candidate packets for detecting an evil twin is retrieved,
-    we run this algorithm from the paper by Agarwal et al. to functionally determine if the evil twin is present."""
+    """Run this algorithm from the paper by Agarwal et al."""
     if r1 == 0:
         # create database entry for the client
         # store MAC address, r1, and AID1 in the DB
@@ -153,7 +154,7 @@ def process_packet(packet: Packet) -> None:
         print("EVIL TWIN DETECTED!!")
     if Dot11 in packet:
         print(packet)
-    #print(packet.summary())
+    # print(packet.summary())
     # saving packet for further analysis of evil twin
     # detection
     DB.append(packet)
@@ -173,7 +174,7 @@ def main() -> None:
         lfilter=filter_frame,
         prn=process_packet,
         monitor=True,
-        store=False
+        store=False,
     )
 
 
