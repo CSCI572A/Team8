@@ -444,3 +444,20 @@ def test_evil_twin_scenario_8(
         )
         == True
     )
+
+
+def test_evil_twin_scenario_8_deauth(
+    mock_association_response_frame, mock_4_way_handshake_retry_deauth
+):
+    """Test case R1 = 1, R2 = 1, Seq1 != Seq2 with deauth."""
+    assert (
+        has_evil_twin(
+            mock_association_response_frame(
+                ap_mac=ap_mac,
+                sequence_control=0x0002,
+                association_id=0x0001,
+                retry=True,
+            )
+        )
+        == False
+    )
