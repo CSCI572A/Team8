@@ -36,6 +36,7 @@ def is_client_de_authentication_frame(frame: Packet) -> bool:
         and frame[Dot11].addr2 == CLIENT_MAC_ADDRESS
     )
 
+
 def has_evil_twin(current_frame: Packet) -> bool:
     """Return whether evil twin was detected.
 
@@ -49,20 +50,27 @@ def has_evil_twin(current_frame: Packet) -> bool:
     if is_association_response_frame_for_client(current_frame):
         # find another packet that is a response frame stored in the database
         # or, find a deauthentication packet
-        deauth_frame = next((frame for frame in DB if is_client_de_authentication_frame(frame)), None)
-        previous_asso_resp_frame = next((frame for frame in DB if is_association_response_frame_for_client(frame)), None)
-        found_deauth_frame = (deauth_frame is not None
-                and previous_asso_resp_frame is not None
-                and previous_asso_resp_frame[Dot11].addr2 == deauth_frame[Dot11].addr1 # the ap is the same for deauth frame
-                # receiver and the sender of the association response frame from the past
-            )
+        deauth_frame = next(
+            (frame for frame in DB if is_client_de_authentication_frame(frame)), None
+        )
+        previous_asso_resp_frame = next(
+            (frame for frame in DB if is_association_response_frame_for_client(frame)),
+            None,
+        )
+        found_deauth_frame = (
+            deauth_frame is not None
+            and previous_asso_resp_frame is not None
+            and previous_asso_resp_frame[Dot11].addr2
+            == deauth_frame[Dot11].addr1  # the ap is the same for deauth frame
+            # receiver and the sender of the association response frame from the past
+        )
         if previous_asso_resp_frame is not None:
             return determine_evil_twin(
-                    current_frame[Dot11].FCfield.retry,
-                    current_frame[Dot11].SC,
-                    previous_asso_resp_frame[Dot11].FCfield.retry,
-                    previous_asso_resp_frame[Dot11].SC,
-                    found_deauth_frame,
+                current_frame[Dot11].FCfield.retry,
+                current_frame[Dot11].SC,
+                previous_asso_resp_frame[Dot11].FCfield.retry,
+                previous_asso_resp_frame[Dot11].SC,
+                found_deauth_frame,
             )
     return False
 
@@ -144,10 +152,11 @@ def filter_frame(packet: Packet) -> bool:
 
 def process_packet(packet: Packet) -> None:
     """Process packet received from the filter."""
+    global DB
     if has_evil_twin(packet):
         print("EVIL TWIN DETECTED!!")
         DB = []
-    if Dot11 in packet:
+    else:
         print(packet)
         DB.append(packet)
 
