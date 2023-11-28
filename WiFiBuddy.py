@@ -87,4 +87,4 @@ mac_type, mac_address = get_mac_address_windows()
 print("MAC Address:", mac_address)
 print("MAC Type:", mac_type)
 
-analyze_packet("test_pcaps/Network_Join_Nokia_Mobile.pcap")
+analyze_packet("examples/Network_Join_Nokia_Mobile.pcap")

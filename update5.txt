@@ -1,0 +1,39 @@
+Names: Paris Floyd and Abhaya Shrestha
+Date: 11/27/2023
+Update 5
+
+This week our team did the following:
+
+1. Abhaya created the finalized requirements.txt file to show what dependencies exist in the project.
+
+2. Abhaya worked on creating tests for our code that involve reading in the example pcap file and printing out wherever
+an association response frame is found. This is a critical component of our detection algorithm, so it was necessary to
+see if it worked well. Paris and Abhaya tested this out together and found that our is_association_response_frame function
+works correctly, as it identified the one association response frame in the Nokia pcap from the Wireshark example
+pcap website.
+
+3. Paris and Ahbaya did pair programming to rework the functionality of the has_evil_twin function. The changes
+made are meant to more appropriately match the real-world scenario of encountering an evil twin. First, the first
+deauthentication frame in the database is discovered. Then, separately, the first association response frame is
+discovered. If the current packet in the pipeline (current_frame) is an association response frame and is associated
+with the same client as a past association response frame, then an evil twin attack is possible. We must then run the
+routine which performs a more detailed analysis of the two candidate packets and their information. We also fixed the
+arguments which were passed to determine_evil_twin, which were based on Abhaya's new way to access the retry bit of a
+packet, which we were failing to do previously. Abhaya's unit tests have found this new method to work very well.
+
+4. Abhaya created more tests that test for the presence of an evil twin attack, which are all passing. This means
+that our algorithm is working as intended, and we can successfully present that our algorithm works on unit tests. Tests
+were made to also deal with the scenario where deauthentication frames were sent, showing that a client wants to
+disassociate with an AP. These tests are also passing. This means that our algorithm is in the end stages and all that
+remains is to test the live sniffer on a client that is capable.
+
+5. Paris tested running the live sniffer on his computer, but was not able to get the scapy functionality to work. Since
+the program works on Abhaya's computer, we suppose that maybe this indicates a hardware difference that disables
+the ability to perform sniffing on some computers. This will be investigated further, and it is still possible that
+the live sniffer will be impossible on some computers due to hardware failures.
+
+6. Paris wrote this update.
+
+We are happy with the finality presented by our algorithm. All that remains is to test our algorithm on a live,
+real-world evil twin attack and record our results. We expect that this will not be easy, but we think we can do it.
+We believe that we have made good progress this week and we can see the finish line.
