@@ -1,19 +1,17 @@
 # When running from command line, pass arguments:
 # NETWORK_INTERFACE="wlan0" CLIENT_MAC_ADDRESS="00.00..." python3 wifi_buddy.py
 """Detect evil twin program."""
-import os
 from typing import List
+import argparse
 
-from scapy.all import Dot11, Dot11AssoReq, Dot11AssoResp, Dot11Auth, Packet, conf, sniff
+from scapy.all import Dot11, Dot11AssoReq, Dot11AssoResp, Dot11Auth, Packet, conf, sniff, rdpcap
 
-# the network interface to sniff traffic on
-NETWORK_INTERFACE: str = os.getenv("NETWORK_INTERFACE", default="wlan0")
 # Dot11 frames the client has received so far relating to
 # 4-way handshake, de-authentication frame, and association response
 # frames. Represents a database
 DB: List[Packet] = []
 # the client mac address
-CLIENT_MAC_ADDRESS: str = os.getenv("CLIENT_MAC_ADDRESS", default="00:00:00:00:00:00")
+CLIENT_MAC_ADDRESS: str = ""
 
 
 def is_association_response_frame_for_client(frame: Packet) -> bool:
@@ -160,9 +158,20 @@ def process_packet(packet: Packet) -> None:
         print(packet)
         DB.append(packet)
 
+def handle_pcap_mode(args):
+    """Handle pcap mode."""
+    global CLIENT_MAC_ADDRESS
+    CLIENT_MAC_ADDRESS = args.client_mac_address
+    capture = rdpcap(args.file)
+    for frame in capture:
+        if filter_frame(frame):
+            process_packet(frame)
 
-def main() -> None:
-    """Run main program."""
+
+def handle_sniff_mode(args):
+    """Handle sniff mode."""
+    global CLIENT_MAC_ADDRESS
+    CLIENT_MAC_ADDRESS = args.client_mac_address
     # Different super sockets are available in Scapy: the native ones, and the ones that use libpcap (to send/receive packets).
     # By default, Scapy will try to use the native ones (except on Windows, where the winpcap/npcap ones are preferred). To manually use the libpcap ones, you must:
     # - On Unix/OSX: be sure to have libpcap installed.
@@ -171,12 +180,31 @@ def main() -> None:
     conf.use_pcap = True
     # Sniff packets infinitely
     sniff(
-        iface=NETWORK_INTERFACE,
+        iface=args.network_interface,
         lfilter=filter_frame,
         prn=process_packet,
         monitor=True,
         store=False,
     )
+
+
+def main() -> None:
+    """Run main program."""
+    parser = argparse.ArgumentParser(prog='WifiBuddy',description='Evil Twin Detector')
+    subparsers = parser.add_subparsers(required=True)
+    # pcap mode flags
+    parser_pcap = subparsers.add_parser('pcap_mode', help='read pcap file for detection mode')
+    parser_pcap.add_argument('--file', type=str, help='pcap file to read', required=True)
+    parser_pcap.add_argument('--client-mac-address', type=str, help='client mac address', required=True)
+    parser_pcap.set_defaults(func=handle_pcap_mode)
+    # sniff mode flags
+    parser_sniff = subparsers.add_parser('sniff_mode', help='sniff wifi traffic mode')
+    parser_sniff.add_argument('--client-mac-address', type=str, help='client mac address', required=True)
+    parser_sniff.add_argument('--network-interface', type=str, help='network interface to listen for wifi traffic', required=True)
+    parser_sniff.set_defaults(func=handle_sniff_mode)
+    
+    args = parser.parse_args()
+    args.func(args)
 
 
 if __name__ == "__main__":

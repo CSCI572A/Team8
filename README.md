@@ -33,3 +33,18 @@
 # Unit testing code
 
 1. Run `pytest .`
+
+# How to run the program
+
+Run `python src/wifi_buddy.py --help` or `python src/wifi_buddy.py -h`.
+
+It will give you two mode options:
+1. `sniff_mode`
+2. `pcap_mode`
+
+To further understand how each of those modes are used, run
+
+`python src/wifi_buddy.py sniff_mode --help`
+`python src/wifi_buddy.py pcap_mode --help`
+
+Some sample examples are given in examples directory.
