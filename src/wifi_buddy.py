@@ -1,10 +1,19 @@
 # When running from command line, pass arguments:
 # NETWORK_INTERFACE="wlan0" CLIENT_MAC_ADDRESS="00.00..." python3 wifi_buddy.py
 """Detect evil twin program."""
-from typing import List
 import argparse
+from typing import List
 
-from scapy.all import Dot11, Dot11AssoReq, Dot11AssoResp, Dot11Auth, Packet, conf, sniff, rdpcap
+from scapy.all import (
+    Dot11,
+    Dot11AssoReq,
+    Dot11AssoResp,
+    Dot11Auth,
+    Packet,
+    conf,
+    rdpcap,
+    sniff,
+)
 
 # Dot11 frames the client has received so far relating to
 # 4-way handshake, de-authentication frame, and association response
@@ -158,6 +167,7 @@ def process_packet(packet: Packet) -> None:
         print(packet)
         DB.append(packet)
 
+
 def handle_pcap_mode(args):
     """Handle pcap mode."""
     global CLIENT_MAC_ADDRESS
@@ -190,19 +200,32 @@ def handle_sniff_mode(args):
 
 def main() -> None:
     """Run main program."""
-    parser = argparse.ArgumentParser(prog='WifiBuddy',description='Evil Twin Detector')
+    parser = argparse.ArgumentParser(prog="WifiBuddy", description="Evil Twin Detector")
     subparsers = parser.add_subparsers(required=True)
     # pcap mode flags
-    parser_pcap = subparsers.add_parser('pcap_mode', help='read pcap file for detection mode')
-    parser_pcap.add_argument('--file', type=str, help='pcap file to read', required=True)
-    parser_pcap.add_argument('--client-mac-address', type=str, help='client mac address', required=True)
+    parser_pcap = subparsers.add_parser(
+        "pcap_mode", help="read pcap file for detection mode"
+    )
+    parser_pcap.add_argument(
+        "--file", type=str, help="pcap file to read", required=True
+    )
+    parser_pcap.add_argument(
+        "--client-mac-address", type=str, help="client mac address", required=True
+    )
     parser_pcap.set_defaults(func=handle_pcap_mode)
     # sniff mode flags
-    parser_sniff = subparsers.add_parser('sniff_mode', help='sniff wifi traffic mode')
-    parser_sniff.add_argument('--client-mac-address', type=str, help='client mac address', required=True)
-    parser_sniff.add_argument('--network-interface', type=str, help='network interface to listen for wifi traffic', required=True)
+    parser_sniff = subparsers.add_parser("sniff_mode", help="sniff wifi traffic mode")
+    parser_sniff.add_argument(
+        "--client-mac-address", type=str, help="client mac address", required=True
+    )
+    parser_sniff.add_argument(
+        "--network-interface",
+        type=str,
+        help="network interface to listen for wifi traffic",
+        required=True,
+    )
     parser_sniff.set_defaults(func=handle_sniff_mode)
-    
+
     args = parser.parse_args()
     args.func(args)
 
