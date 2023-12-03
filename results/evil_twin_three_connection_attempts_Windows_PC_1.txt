@@ -1,0 +1,9 @@
+RadioTap / 802.11 Management Deauthentication {client_mac_address} (TA=SA) > {ap_mac_address} (RA=DA) / Dot11CCMP
+RadioTap / 802.11 Management Authentication {client_mac_address} (TA=SA) > {ap_mac_address} (RA=DA) / Dot11Auth
+RadioTap / 802.11 Management Authentication {client_mac_address} (TA=SA) > {ap_mac_address} (RA=DA) / Dot11Auth
+RadioTap / Dot11FCS / Dot11AssoReq / SSID='CenturyLink3676' / Dot11EltRates / Dot11Elt / Dot11Elt / Dot11EltHTCapabilities / Dot11EltRSN / Dot11Elt / Dot11Elt / Dot11Elt / Dot11EltVendorSpecific / Dot11EltVendorSpecific
+RadioTap / 802.11 Management Association Response {ap_mac_address} (TA=SA) > {client_mac_address} (RA=DA) / Dot11AssoResp / Dot11EltRates / Dot11Elt / Dot11EltHTCapabilities / Dot11Elt / Dot11Elt / Dot11Elt / Dot11Elt / Dot11Elt / Dot11EltVendorSpecific / Dot11EltVendorSpecific
+RadioTap / 802.11 Management Deauthentication {client_mac_address} (TA=SA) > {ap_mac_address} (RA=DA) / Dot11CCMP
+RadioTap / 802.11 Management Authentication {client_mac_address} (TA=SA) > {ap_mac_address} (RA=DA) / Dot11Auth
+RadioTap / Dot11FCS / Dot11AssoReq / SSID='CenturyLink3676' / Dot11EltRates / Dot11Elt / Dot11Elt / Dot11EltHTCapabilities / Dot11EltRSN / Dot11Elt / Dot11Elt / Dot11Elt / Dot11EltVendorSpecific / Dot11EltVendorSpecific
+RadioTap / 802.11 Management Association Response {ap_mac_address} (TA=SA) > {client_mac_address} (RA=DA) / Dot11AssoResp / Dot11EltRates / Dot11Elt / Dot11EltHTCapabilities / Dot11Elt / Dot11Elt / Dot11Elt / Dot11Elt / Dot11Elt / Dot11EltVendorSpecific / Dot11EltVendorSpecific
