@@ -98,7 +98,7 @@ def determine_evil_twin(
             return False
         elif not r2:
             return True
-        elif r2 and seq1 == seq2:
+        elif r2:
             if seq1 == seq2:
                 return True
             else:
