@@ -25,7 +25,6 @@ def mock_association_response_frame():
                 subtype=1,
                 addr1=CLIENT_MAC_ADDRESS,
                 addr2=ap_mac,
-                addr3=CLIENT_MAC_ADDRESS,
             )
             / Dot11AssoResp(status=0)
         )
@@ -55,27 +54,22 @@ def mock_4_way_handshake_incomplete(monkeypatch):
             # Dot11.type values are 0-management, 1-control, 2-data
             # Dot11.subtype field indicates the type of management control or data frame.
             RadioTap()
-            / Dot11(
-                type=0, subtype=11, addr1=ap_mac, addr2=CLIENT_MAC_ADDRESS, addr3=ap_mac
-            )
+            / Dot11(type=0, subtype=11, addr1=ap_mac, addr2=CLIENT_MAC_ADDRESS)
             / Dot11Auth(algo=0, seqnum=1, status=0),
             # authentication response frame sent by the ap
-            # subtype=12 to indicate an authentication response frame
+            # subtype=11 to indicate an authentication response frame
             RadioTap()
             / Dot11(
                 type=0,
-                subtype=12,
+                subtype=11,
                 addr1=CLIENT_MAC_ADDRESS,
                 addr2=ap_mac,
-                addr3=CLIENT_MAC_ADDRESS,
             )
             / Dot11Auth(algo=0, seqnum=2, status=0),
             # client sends an association request to the ap
             # type=0 and subtype=0 to indicate an association request
             RadioTap()
-            / Dot11(
-                type=0, subtype=0, addr1=ap_mac, addr2=CLIENT_MAC_ADDRESS, addr3=ap_mac
-            )
+            / Dot11(type=0, subtype=0, addr1=ap_mac, addr2=CLIENT_MAC_ADDRESS)
             / Dot11AssoReq(),
         ],
     )
@@ -92,27 +86,22 @@ def mock_4_way_handshake(monkeypatch, mock_association_response_frame):
             # Dot11.type values are 0-management, 1-control, 2-data
             # Dot11.subtype field indicates the type of management control or data frame.
             RadioTap()
-            / Dot11(
-                type=0, subtype=11, addr1=ap_mac, addr2=CLIENT_MAC_ADDRESS, addr3=ap_mac
-            )
+            / Dot11(type=0, subtype=11, addr1=ap_mac, addr2=CLIENT_MAC_ADDRESS)
             / Dot11Auth(algo=0, seqnum=1, status=0),
             # authentication response frame sent by the ap
-            # subtype=12 to indicate an authentication response frame
+            # subtype=11 to indicate an authentication response frame
             RadioTap()
             / Dot11(
                 type=0,
-                subtype=12,
+                subtype=11,
                 addr1=CLIENT_MAC_ADDRESS,
                 addr2=ap_mac,
-                addr3=CLIENT_MAC_ADDRESS,
             )
             / Dot11Auth(algo=0, seqnum=2, status=0),
             # client sends an association request to the ap
             # type=0 and subtype=0 to indicate an association request
             RadioTap()
-            / Dot11(
-                type=0, subtype=0, addr1=ap_mac, addr2=CLIENT_MAC_ADDRESS, addr3=ap_mac
-            )
+            / Dot11(type=0, subtype=0, addr1=ap_mac, addr2=CLIENT_MAC_ADDRESS)
             / Dot11AssoReq(),
             # ap/eviltwin sends association response frame,
             mock_association_response_frame(
@@ -136,27 +125,22 @@ def mock_4_way_handshake_retry(monkeypatch, mock_association_response_frame):
             # Dot11.type values are 0-management, 1-control, 2-data
             # Dot11.subtype field indicates the type of management control or data frame.
             RadioTap()
-            / Dot11(
-                type=0, subtype=11, addr1=ap_mac, addr2=CLIENT_MAC_ADDRESS, addr3=ap_mac
-            )
+            / Dot11(type=0, subtype=11, addr1=ap_mac, addr2=CLIENT_MAC_ADDRESS)
             / Dot11Auth(algo=0, seqnum=1, status=0),
             # authentication response frame sent by the ap
-            # subtype=12 to indicate an authentication response frame
+            # subtype=11 to indicate an authentication response frame
             RadioTap()
             / Dot11(
                 type=0,
-                subtype=12,
+                subtype=11,
                 addr1=CLIENT_MAC_ADDRESS,
                 addr2=ap_mac,
-                addr3=CLIENT_MAC_ADDRESS,
             )
             / Dot11Auth(algo=0, seqnum=2, status=0),
             # client sends an association request to the ap
             # type=0 and subtype=0 to indicate an association request
             RadioTap()
-            / Dot11(
-                type=0, subtype=0, addr1=ap_mac, addr2=CLIENT_MAC_ADDRESS, addr3=ap_mac
-            )
+            / Dot11(type=0, subtype=0, addr1=ap_mac, addr2=CLIENT_MAC_ADDRESS)
             / Dot11AssoReq(),
             # ap/eviltwin sends association response frame,
             mock_association_response_frame(
@@ -180,27 +164,22 @@ def mock_4_way_handshake_retry_deauth(monkeypatch, mock_association_response_fra
             # Dot11.type values are 0-management, 1-control, 2-data
             # Dot11.subtype field indicates the type of management control or data frame.
             RadioTap()
-            / Dot11(
-                type=0, subtype=11, addr1=ap_mac, addr2=CLIENT_MAC_ADDRESS, addr3=ap_mac
-            )
+            / Dot11(type=0, subtype=11, addr1=ap_mac, addr2=CLIENT_MAC_ADDRESS)
             / Dot11Auth(algo=0, seqnum=1, status=0),
             # authentication response frame sent by the ap
-            # subtype=12 to indicate an authentication response frame
+            # subtype=11 to indicate an authentication response frame
             RadioTap()
             / Dot11(
                 type=0,
-                subtype=12,
+                subtype=11,
                 addr1=CLIENT_MAC_ADDRESS,
                 addr2=ap_mac,
-                addr3=CLIENT_MAC_ADDRESS,
             )
             / Dot11Auth(algo=0, seqnum=2, status=0),
             # client sends an association request to the ap
             # type=0 and subtype=0 to indicate an association request
             RadioTap()
-            / Dot11(
-                type=0, subtype=0, addr1=ap_mac, addr2=CLIENT_MAC_ADDRESS, addr3=ap_mac
-            )
+            / Dot11(type=0, subtype=0, addr1=ap_mac, addr2=CLIENT_MAC_ADDRESS)
             / Dot11AssoReq(),
             # ap/eviltwin sends association response frame,
             mock_association_response_frame(
@@ -211,9 +190,7 @@ def mock_4_way_handshake_retry_deauth(monkeypatch, mock_association_response_fra
             ),
             # de authentication frame from client
             RadioTap()
-            / Dot11(
-                type=0, subtype=12, addr1=ap_mac, addr2=CLIENT_MAC_ADDRESS, addr3=ap_mac
-            ),
+            / Dot11(type=0, subtype=12, addr1=ap_mac, addr2=CLIENT_MAC_ADDRESS),
         ],
     )
 
@@ -229,27 +206,22 @@ def mock_4_way_handshake_with_deauth(monkeypatch, mock_association_response_fram
             # Dot11.type values are 0-management, 1-control, 2-data
             # Dot11.subtype field indicates the type of management control or data frame.
             RadioTap()
-            / Dot11(
-                type=0, subtype=11, addr1=ap_mac, addr2=CLIENT_MAC_ADDRESS, addr3=ap_mac
-            )
+            / Dot11(type=0, subtype=11, addr1=ap_mac, addr2=CLIENT_MAC_ADDRESS)
             / Dot11Auth(algo=0, seqnum=1, status=0),
             # authentication response frame sent by the ap
-            # subtype=12 to indicate an authentication response frame
+            # subtype=11 to indicate an authentication response frame
             RadioTap()
             / Dot11(
                 type=0,
-                subtype=12,
+                subtype=11,
                 addr1=CLIENT_MAC_ADDRESS,
                 addr2=ap_mac,
-                addr3=CLIENT_MAC_ADDRESS,
             )
             / Dot11Auth(algo=0, seqnum=2, status=0),
             # client sends an association request to the ap
             # type=0 and subtype=0 to indicate an association request
             RadioTap()
-            / Dot11(
-                type=0, subtype=0, addr1=ap_mac, addr2=CLIENT_MAC_ADDRESS, addr3=ap_mac
-            )
+            / Dot11(type=0, subtype=0, addr1=ap_mac, addr2=CLIENT_MAC_ADDRESS)
             / Dot11AssoReq(),
             # ap/evil twin sends response asso frame back to client
             mock_association_response_frame(
@@ -260,9 +232,7 @@ def mock_4_way_handshake_with_deauth(monkeypatch, mock_association_response_fram
             ),
             # de authentication frame from client
             RadioTap()
-            / Dot11(
-                type=0, subtype=12, addr1=ap_mac, addr2=CLIENT_MAC_ADDRESS, addr3=ap_mac
-            ),
+            / Dot11(type=0, subtype=12, addr1=ap_mac, addr2=CLIENT_MAC_ADDRESS),
         ],
     )
 

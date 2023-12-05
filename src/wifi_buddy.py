@@ -137,7 +137,7 @@ def filter_frame(packet: Packet) -> bool:
     is_authentication_response_frame = (
         Dot11 in packet
         and packet[Dot11].type == 0
-        and packet[Dot11].subtype == 12
+        and packet[Dot11].subtype == 11
         and Dot11Auth in packet
         and packet[Dot11].addr1 == CLIENT_MAC_ADDRESS
     )
@@ -160,11 +160,11 @@ def filter_frame(packet: Packet) -> bool:
 def process_packet(packet: Packet) -> None:
     """Process packet received from the filter."""
     global DB
+    print(packet)
     if has_evil_twin(packet):
         print("EVIL TWIN DETECTED!!")
         DB = []
     else:
-        print(packet)
         DB.append(packet)
 
 

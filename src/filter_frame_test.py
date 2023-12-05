@@ -28,10 +28,9 @@ def test_filter_ap_authentication_response_frame():
             RadioTap()
             / Dot11(
                 type=0,
-                subtype=12,
+                subtype=11,
                 addr1=CLIENT_MAC_ADDRESS,
                 addr2=ap_mac,
-                addr3=CLIENT_MAC_ADDRESS,
             )
             / Dot11Auth(algo=0, seqnum=2, status=0),
         )
@@ -61,7 +60,6 @@ def test_filter_ap_association_response_frame():
                 subtype=1,
                 addr1=CLIENT_MAC_ADDRESS,
                 addr2=ap_mac,
-                addr3=CLIENT_MAC_ADDRESS,
             )
             / Dot11AssoResp(status=0)
         )
@@ -78,7 +76,6 @@ def test_filter_client_de_authentication_frame():
                 subtype=12,
                 addr1=ap_mac,
                 addr2=CLIENT_MAC_ADDRESS,
-                addr3=ap_mac,
             )
         )
     ) == True
