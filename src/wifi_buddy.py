@@ -40,7 +40,10 @@ def is_client_de_authentication_frame(frame: Packet) -> bool:
         Dot11 in frame
         and frame[Dot11].type == 0
         and frame[Dot11].subtype == 12
-        and frame[Dot11].addr2 == CLIENT_MAC_ADDRESS
+        and (
+            frame[Dot11].addr2 == CLIENT_MAC_ADDRESS
+            or frame[Dot11].addr3 == CLIENT_MAC_ADDRESS
+        )
     )
 
 
@@ -132,7 +135,10 @@ def filter_frame(packet: Packet) -> bool:
         and packet[Dot11].type == 0
         and packet[Dot11].subtype == 11
         and Dot11Auth in packet
-        and packet[Dot11].addr2 == CLIENT_MAC_ADDRESS
+        and (
+            packet[Dot11].addr2 == CLIENT_MAC_ADDRESS
+            or packet[Dot11].addr3 == CLIENT_MAC_ADDRESS
+        )
     )
     is_authentication_response_frame = (
         Dot11 in packet
@@ -146,7 +152,10 @@ def filter_frame(packet: Packet) -> bool:
         and packet[Dot11].type == 0
         and packet[Dot11].subtype == 0
         and Dot11AssoReq in packet
-        and packet[Dot11].addr2 == CLIENT_MAC_ADDRESS
+        and (
+            packet[Dot11].addr2 == CLIENT_MAC_ADDRESS
+            or packet[Dot11].addr3 == CLIENT_MAC_ADDRESS
+        )
     )
     return (
         is_authentication_request_frame
