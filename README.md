@@ -1,8 +1,9 @@
 # Setting up environment
 
 You are going to have to install Anaconda or python to get this program to work.
-This setup assumes the user is using Anaconda. However, just using `python` version 3.10 on
-local machine, and installing the requirements with `pip` could work as well.
+This setup assumes the user is using Anaconda. However, just using `python` version 3.10 and respective `pip`
+package manager for the python version on local machine,
+and installing the requirements with `pip` from step 3 could work as well.
 
 1. Create a virtual environment with Anaconda using
 `conda create --name <your_env_name> python=3.10` and activate it using `conda activate <your_env_name>`
